@@ -1,7 +1,7 @@
 from behave import given, when, then
 import requests
 
-BASE_URL = "https://api.orange.com/orders"
+BASE_URL = "https://petstore.swagger.io/v2/store/order"
 
 @given("una orden con id {order_id} existe")
 def step_order_exists(context, order_id):
