@@ -1,0 +1,16 @@
+-------------------------------------------------------------------------------
+Test set: com.orange.RunCucumberTest
+-------------------------------------------------------------------------------
+Tests run: 3, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 31.666 s <<< FAILURE! - in com.orange.RunCucumberTest
+Reserva de viajes en PeruRail.El usuario utiliza el filtro para visualizar unicamente los usuarios que tienen el rol de: Admin  Time elapsed: 17.619 s  <<< ERROR!
+io.cucumber.junit.UndefinedStepException: 
+The step 'Validar que los registros contengan actions editar y eliminar' is undefined.
+You can implement this step using the snippet(s) below:
+
+@Then("Validar que los registros contengan actions editar y eliminar")
+public void validar_que_los_registros_contengan_actions_editar_y_eliminar() {
+    // Write code here that turns the phrase above into concrete actions
+    throw new io.cucumber.java.PendingException();
+}
+
+

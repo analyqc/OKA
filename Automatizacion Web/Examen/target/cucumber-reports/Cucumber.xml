@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Cucumber" time="30.331" tests="3" skipped="0" failures="1" errors="0">
+<testcase classname="Reserva de viajes en PeruRail" name="Login  ok" time="6.912">
+<system-out><![CDATA[
+Given El usuario ingresa a la pagina de orange..............................passed
+When El usuario ingresa el user "Admin" y el password "admin123"............passed
+Then aqui se verificara los datos son correctos.............................passed
+]]></system-out>
+</testcase>
+<testcase classname="Reserva de viajes en PeruRail" name="Login  fallido" time="5.555">
+<system-out><![CDATA[
+Given El usuario ingresa a la pagina de orange..............................passed
+When El usuario ingresa el user "Admin1" y el password "admin123"...........passed
+Then aqui se verificara los datos son incorrectos...........................passed
+]]></system-out>
+</testcase>
+<testcase classname="Reserva de viajes en PeruRail" name="El usuario utiliza el filtro para visualizar unicamente los usuarios que tienen el rol de: Admin" time="17.568">
+<failure/>
+<system-out><![CDATA[
+Given El usuario ingresa a la pagina de orange..............................passed
+When El usuario ingresa el user "Admin" y el password "admin123"............passed
+And Buscar administradores..................................................passed
+Then Validar que los registros contengan actions editar y eliminar..........undefined
+]]></system-out>
+</testcase>
+</testsuite>
