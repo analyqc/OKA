@@ -1,82 +1,92 @@
-from behave import given, when, then
 import requests
+from behave import given, when, then
 
 BASE_URL = "https://petstore.swagger.io/v2/store/order"
 
-@given("una orden con id {order_id} existe")
-def step_order_exists(context, order_id):
+@given(u'una orden con id {order_id} existe')
+def step_impl(context, order_id):
+    context.order_id = order_id
+    order_data = {
+        "id": int(order_id),
+        "petId": 500,
+        "quantity": 2,
+        "status": "placed",
+        "complete": True
+    }
+    response = requests.post(BASE_URL, json=order_data)
+    assert response.status_code == 200, f"Error al crear orden: {response.text}"
+
+@when(u'se solicita la orden')
+@when(u'se solicita la orden con id {order_id}')
+def step_impl(context, order_id=None):
+    order_id = order_id or context.order_id
+    context.response = requests.get(f"{BASE_URL}/{order_id}")
+
+@then(u'la respuesta contiene la orden con código 200')
+def step_impl(context):
+    assert context.response.status_code == 200, f"Esperado 200, pero se obtuvo {context.response.status_code}"
+
+@given(u'una orden con id {order_id} no existe en el sistema')
+def step_impl(context, order_id):
     context.order_id = order_id
 
-@given("una orden con id {order_id} no existe en el sistema")
-def step_order_does_not_exist(context, order_id):
-    context.order_id = order_id
+@then(u'la respuesta tiene el código de error 404')
+def step_impl(context):
+    assert context.response.status_code == 404, f"Esperado 404, pero se obtuvo {context.response.status_code}"
 
-@given("el servicio de órdenes está inestable")
-def step_service_unstable(context):
-    context.service_unstable = True
+@given(u'el servicio de órdenes está inestable')
+def step_impl(context):
+    context.base_url = "https://invalid-url.com"
 
-@when("se solicita la orden")
-def step_request_order(context):
-    url = f"{BASE_URL}/{context.order_id}"
-    if hasattr(context, "service_unstable"):
-        context.response = {"status_code": 500}
-    elif context.order_id == "99999":
-        context.response = {"status_code": 400}
-    else:
-        context.response = {"status_code": 200}
+@then(u'la respuesta tiene el código de error 500')
+def step_impl(context):
+    assert context.response.status_code == 500, f"Esperado 500, pero se obtuvo {context.response.status_code}"
 
-@then("la respuesta contiene la orden con código {status_code}")
-@then("la respuesta tiene el código de error {status_code}")
-def step_validate_response(context, status_code):
-    assert context.response["status_code"] == int(status_code), f"Esperado {status_code}, recibido {context.response['status_code']}"
+@given(u'un usuario quiere crear una orden con id {order_id}, pet_id {pet_id}, y cantidad {cantidad}')
+def step_impl(context, order_id, pet_id, cantidad):
+    context.order_data = {
+        "id": int(order_id),
+        "petId": int(pet_id),
+        "quantity": int(cantidad),
+        "status": "placed",
+        "complete": True
+    }
 
-@given("un usuario quiere crear una orden con id {order_id}, pet_id {pet_id} y cantidad {cantidad}")
-def step_create_order(context, order_id, pet_id, cantidad):
-    context.order_data = {"order_id": order_id, "pet_id": pet_id, "cantidad": cantidad}
+@when(u'envía la solicitud de creación de orden')
+def step_impl(context):
+    context.response = requests.post(BASE_URL, json=context.order_data)
 
-@given("un usuario quiere crear una orden con datos inválidos")
-def step_create_invalid_order(context):
-    context.order_data = {"order_id": "", "pet_id": "", "cantidad": -1}
+@then(u'la orden es creada con código de respuesta 200')
+def step_impl(context):
+    assert context.response.status_code == 200, f"Esperado 200, pero se obtuvo {context.response.status_code}"
 
-@when("envía la solicitud de creación de orden")
-def step_send_create_order(context):
-    if hasattr(context, "service_unstable"):
-        context.response = {"status_code": 500}
-    elif context.order_data["order_id"] == "":
-        context.response = {"status_code": 400}
-    else:
-        context.response = {"status_code": 200}
+@given(u'un usuario quiere crear una orden con datos inválidos')
+def step_impl(context):
+    context.order_data = {
+        "id": "invalid",  
+        "petId": "none",  
+        "quantity": "wrong"  
+    }
 
-@when("el usuario intenta crear una orden")
-def step_attempt_create_order(context):
-    context.response = {"status_code": 500}
+@when(u'el usuario intenta crear una orden')
+def step_impl(context):
+    context.response = requests.post(BASE_URL, json=context.order_data)
 
-@given("una orden con id {order_id} existe")
-def step_existing_order(context, order_id):
-    context.order_id = order_id
+@then(u'la respuesta tiene el código de error 400')
+def step_impl(context):
+    assert context.response.status_code == 400, f"Esperado 400, pero se obtuvo {context.response.status_code}"
 
-@when("se elimina la orden")
-def step_delete_order(context):
-    if hasattr(context, "service_unstable"):
-        context.response = {"status_code": 500}
-    elif context.order_id == "99999":
-        context.response = {"status_code": 400}
-    else:
-        context.response = {"status_code": 200}
+@when(u'se elimina la orden')
+@when(u'se intenta eliminar la orden con id {order_id}')
+def step_impl(context, order_id=None):
+    order_id = order_id or context.order_id
+    context.response = requests.delete(f"{BASE_URL}/{order_id}")
 
-@when("se intenta eliminar la orden")
-def step_attempt_delete_order(context):
-    context.response = {"status_code": 400}
+@then(u'la orden es eliminada con código 200')
+def step_impl(context):
+    assert context.response.status_code == 200, f"Esperado 200, pero se obtuvo {context.response.status_code}"
 
-@when("se intenta eliminar la orden con id {order_id}")
-def step_attempt_delete_specific_order(context, order_id):
-    context.order_id = order_id
-    context.response = {"status_code": 500}
-
-@then("la orden es eliminada con código {status_code}")
-def step_order_deleted(context, status_code):
-    assert context.response["status_code"] == int(status_code)
-
-@then("la orden ya no existe")
-def step_order_not_exist(context):
-    pass  
+@then(u'la orden ya no existe')
+def step_impl(context):
+    response = requests.get(f"{BASE_URL}/{context.order_id}")
+    assert response.status_code == 404, f"Esperado 404, pero se obtuvo {response.status_code}"
